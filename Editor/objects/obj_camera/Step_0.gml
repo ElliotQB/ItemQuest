@@ -9,7 +9,7 @@ camera_set_view_pos(camera, camera_set_x, camera_set_y);
 camera_tar_zoom = clamp(camera_tar_zoom, 0.5, 5);
 camera_zoom += (camera_tar_zoom - camera_zoom) * 0.05;
 
-if (mouse_check_button_pressed(mb_middle))
+if (mouse_check_button_pressed(mb_middle) || keyboard_check_pressed(vk_control))
 {
 	camera_drag_offset_x = x;
 	camera_drag_offset_y = y;
@@ -18,7 +18,7 @@ if (mouse_check_button_pressed(mb_middle))
 	mouse_grab_y = device_mouse_y_to_gui(0);
 }
 
-if (mouse_check_button(mb_middle))
+if (mouse_check_button(mb_middle) || keyboard_check(vk_control))
 {
 	mouse_drag_x = device_mouse_x_to_gui(0);
 	mouse_drag_y = device_mouse_y_to_gui(0);

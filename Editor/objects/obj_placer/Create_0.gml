@@ -1,10 +1,11 @@
+#macro ARRAY_SIZE 200
+
 tiles = [];
 
 
-var array_size = 200;
-for (var i = 0; i < array_size; i++)
+for (var i = 0; i < ARRAY_SIZE; i++)
 {
-	array_push(tiles, array_create(array_size));
+	array_push(tiles, array_create(ARRAY_SIZE));
 }
 
 
