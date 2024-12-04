@@ -4,7 +4,7 @@ import rl "github.com/gen2brain/raylib-go/raylib"
 
 const (
 	PLAYER_WIDTH        = 50
-	PLAYER_HEIGHT       = 75
+	PLAYER_HEIGHT       = 85
 	PLAYER_MAXXSPEED    = 6
 	PLAYER_GROUND_ACCEL = 1
 	PLAYER_GROUND_DECEL = 1
@@ -17,30 +17,72 @@ const (
 	PLAYER_JUMP_BUFFER  = 15
 )
 
+const (
+	ANIM_IDLE        = 0
+	ANIM_IDLE_PATH   = "textures/idle-Sheet.png"
+	ANIM_IDLE_FRAMES = 4
+
+	ANIM_RUN        = 1
+	ANIM_RUN_PATH   = "textures/run-Sheet.png"
+	ANIM_RUN_FRAMES = 9
+
+	ANIM_JUMP        = 2
+	ANIM_JUMP_PATH   = "textures/jump-Sheet.png"
+	ANIM_JUMP_FRAMES = 1
+
+	ANIM_FALL        = 3
+	ANIM_FALL_PATH   = "textures/fall-Sheet.png"
+	ANIM_FALL_FRAMES = 1
+
+	ANIM_LAND        = 4
+	ANIM_LAND_PATH   = "textures/land-Sheet.png"
+	ANIM_LAND_FRAMES = 4
+)
+
+func LoadAnims() []rl.Texture2D {
+	anims := []rl.Texture2D{}
+	anims = append(anims, rl.LoadTexture(ANIM_IDLE_PATH))
+	anims = append(anims, rl.LoadTexture(ANIM_RUN_PATH))
+	anims = append(anims, rl.LoadTexture(ANIM_JUMP_PATH))
+	anims = append(anims, rl.LoadTexture(ANIM_FALL_PATH))
+	anims = append(anims, rl.LoadTexture(ANIM_LAND_PATH))
+
+	return anims
+}
+
 type Player struct {
 	Pos    rl.Vector2
 	Vel    rl.Vector2
 	Width  float32
 	Height float32
-	game   *Game
 
 	coyoteTime float32
 	jumpBuffer float32
+
+	game           *Game
+	renderer       *SpriteRenderer
+	AnimationState uint
+	ASTimer        float32
+	Anims          []rl.Texture2D
 }
 
 func NewPlayer(g *Game) Player {
+	anims := LoadAnims()
 	return Player{
-		Width:  PLAYER_WIDTH,
-		Height: PLAYER_HEIGHT,
-		game:   g,
+		Width:    PLAYER_WIDTH,
+		Height:   PLAYER_HEIGHT,
+		game:     g,
+		renderer: NewSpriteRenderer(anims[ANIM_IDLE], ANIM_IDLE_FRAMES, 4, 3, rl.NewVector2(0, -16)),
+		Anims:    anims,
 	}
 }
 
 func (p *Player) DrawPlayer() {
-	rl.DrawRectangle(int32(p.Pos.X), int32(p.Pos.Y), int32(p.Width), int32(p.Height), rl.Green)
+	//rl.DrawRectangle(int32(p.Pos.X), int32(p.Pos.Y), int32(p.Width), int32(p.Height), rl.Green)
+	p.renderer.Render(float32(int(p.Pos.X+(PLAYER_WIDTH/2))), float32(int(p.Pos.Y+(PLAYER_HEIGHT/2))))
 }
 
-func (p *Player) PlayerTick() {
+func (p *Player) PlayerStep() {
 	inp := &p.game.Input
 
 	// capture input and ground state
@@ -97,6 +139,9 @@ func (p *Player) PlayerTick() {
 		p.coyoteTime = 0
 	}
 
+	// increment animation state
+	p.PlayerAnimationStateStep()
+
 	// decrease jump buffer
 	p.jumpBuffer = max(0, p.jumpBuffer-1)
 
@@ -125,6 +170,22 @@ func (p *Player) PlayerTick() {
 	p.Pos.X += p.Vel.X
 	p.Pos.Y += p.Vel.Y
 
+}
+
+func (p *Player) PlayerAnimationStateStep() {
+
+	switch p.AnimationState {
+	case ANIM_IDLE:
+		if p.ASTimer == 0 {
+			p.renderer.sprite = p.Anims[ANIM_IDLE]
+			p.renderer.animationFrame = 0
+			p.renderer.animationSpeed = 4
+		}
+
+	}
+
+	p.ASTimer++
+	p.renderer.AnimationStep()
 }
 
 func (p *Player) TileMeeting(x float32, y float32) bool {

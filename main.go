@@ -18,10 +18,10 @@ func main() {
 	for !rl.WindowShouldClose() {
 
 		// game logic
-		game.Input.InputTick()
-		game.Player.PlayerTick()
+		game.Input.InputStep()
+		game.Player.PlayerStep()
 		camera.MoveCamera(rl.NewVector2(game.Player.Pos.X+(PLAYER_WIDTH/2), game.Player.Pos.Y+(PLAYER_HEIGHT/2)))
-		camera.CameraTick()
+		camera.CameraStep()
 
 		// drawing
 		rl.BeginDrawing()

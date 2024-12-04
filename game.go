@@ -137,3 +137,12 @@ func Sign(val float32) float32 {
 		return 0
 	}
 }
+
+// returns a normalized version of the value
+func BoolSign(val bool) float32 {
+	if val {
+		return 1
+	} else {
+		return -1
+	}
+}

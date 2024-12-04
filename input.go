@@ -17,7 +17,7 @@ func NewInput(game *Game) Input {
 	return Input{game: game}
 }
 
-func (i *Input) InputTick() {
+func (i *Input) InputStep() {
 	i.left = rl.IsKeyDown(rl.KeyD)
 	i.right = rl.IsKeyDown(rl.KeyA)
 	i.up = rl.IsKeyDown(rl.KeyW)

@@ -28,7 +28,7 @@ func (c *Camera) MoveCamera(pos rl.Vector2) {
 	c.tweenPos = pos
 }
 
-func (c *Camera) CameraTick() {
+func (c *Camera) CameraStep() {
 	c.Camera.Target.X += (c.tweenPos.X - c.Camera.Target.X) * 0.05
 	c.Camera.Target.Y += (c.tweenPos.Y - c.Camera.Target.Y) * 0.05
 
