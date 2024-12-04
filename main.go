@@ -12,15 +12,15 @@ func main() {
 	game.Camera.Camera.Target = rl.NewVector2(float32(rl.GetScreenWidth())/2, float32(rl.GetScreenHeight())/2)
 
 	camera := &game.Camera
+	player := &game.Player
 
 	rl.SetTargetFPS(60)
 
 	for !rl.WindowShouldClose() {
 
 		// game logic
-		if rl.IsKeyDown(rl.KeyRight) {
-			game.Camera.MoveCamera(rl.NewVector2(camera.CamX()+1, camera.CamY()+1))
-		}
+		camera.MoveCamera(rl.NewVector2(game.Player.Pos.X+(PLAYER_WIDTH/2), game.Player.Pos.Y+(PLAYER_HEIGHT/2)))
+		game.Input.InputTick()
 
 		// drawing
 		rl.BeginDrawing()
@@ -31,6 +31,7 @@ func main() {
 
 		game.DrawTiles()
 		camera.DrawCameraMarker()
+		player.DrawPlayer()
 
 		rl.DrawCircle(int32(game.Camera.screenLeft), int32(game.Camera.screenTop), 20, rl.Blue)
 		rl.DrawCircle(int32(game.Camera.screenRight), int32(game.Camera.screenBottom), 20, rl.Red)

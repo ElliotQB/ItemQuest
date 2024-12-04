@@ -19,6 +19,6 @@ if (keyboard_check_pressed(ord("L")))
 	
 	for (var i = 0; i < array_length(split)-1; i += 3)
 	{
-		tiles[split[i]][split[i+1]] = split[2]
+		tiles[split[i]][split[i+1]] = real(split[i+2]);
 	}
 }

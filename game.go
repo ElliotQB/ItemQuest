@@ -16,6 +16,8 @@ type Game struct {
 	loaded bool
 	Tiles  [200][200]bool
 	Camera Camera
+	Player Player
+	Input  Input
 }
 
 func NewGame() Game {
@@ -26,6 +28,8 @@ func NewGame() Game {
 
 func (g *Game) PopulateGame() {
 	g.Camera = NewCamera(g)
+	g.Player = NewPlayer(g)
+	g.Input = NewInput(g)
 }
 
 func (g *Game) LoadLevel(filename string) {
@@ -56,16 +60,21 @@ func (g *Game) LoadLevel(filename string) {
 
 		if tile == 1 {
 			g.Tiles[x][y] = true
+		} else if tile == 2 {
+			g.Player.Pos = rl.NewVector2(float32(x*(CELL_SIZE)), float32(y*CELL_SIZE))
+			g.Camera.MoveCamera(g.Player.Pos)
 		}
 	}
 	g.loaded = true
 }
 
 func (g *Game) DrawTiles() {
-	for i := StepDown(g.Camera.screenLeft, CELL_SIZE); i <= StepUp(g.Camera.screenRight, CELL_SIZE); i += CELL_SIZE {
-		for j := StepDown(g.Camera.screenTop, CELL_SIZE); j <= StepUp(g.Camera.screenBottom, CELL_SIZE); j += CELL_SIZE {
-			if g.Tiles[int(i/CELL_SIZE)][int(j/CELL_SIZE)] {
-				rl.DrawRectangle(int32(i), int32(j), CELL_SIZE, CELL_SIZE, rl.Gray)
+	for i := max(0, StepDown(g.Camera.screenLeft, CELL_SIZE)); i <= min(200*CELL_SIZE, StepUp(g.Camera.screenRight, CELL_SIZE)); i += CELL_SIZE {
+		for j := max(0, StepDown(g.Camera.screenTop, CELL_SIZE)); j <= min(200*CELL_SIZE, StepUp(g.Camera.screenBottom, CELL_SIZE)); j += CELL_SIZE {
+			if i >= 0 && j >= 0 && i < 200*CELL_SIZE && j < 200*CELL_SIZE {
+				if g.Tiles[int(i/CELL_SIZE)][int(j/CELL_SIZE)] {
+					rl.DrawRectangle(int32(i), int32(j), CELL_SIZE, CELL_SIZE, rl.Gray)
+				}
 			}
 		}
 	}

@@ -2,6 +2,18 @@
 
 tiles = [];
 
+cur_tile = TILES.COLLISION
+
+#macro NUM_TILES 3
+enum TILES 
+{
+	COLLISION	= 1,
+	PLAYERSTART = 2,
+	COLLECTABLE = 3,
+}
+
+tile_type = 1;
+
 
 for (var i = 0; i < ARRAY_SIZE; i++)
 {

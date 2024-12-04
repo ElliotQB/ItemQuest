@@ -39,6 +39,7 @@
     {"id":{"name":"obj_renderer","path":"objects/obj_renderer/obj_renderer.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"scr_step_down","path":"scripts/scr_step_down/scr_step_down.yy",},},
+    {"id":{"name":"scr_tile_info","path":"scripts/scr_tile_info/scr_tile_info.yy",},},
   ],
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
