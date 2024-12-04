@@ -63,6 +63,7 @@ func (g *Game) LoadLevel(filename string) {
 		} else if tile == 2 {
 			g.Player.Pos = rl.NewVector2(float32(x*(CELL_SIZE)), float32(y*CELL_SIZE)-5)
 			g.Camera.MoveCamera(g.Player.Pos)
+			g.Camera.tweenPos = g.Player.Pos
 		}
 	}
 	g.loaded = true

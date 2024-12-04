@@ -4,8 +4,8 @@ import rl "github.com/gen2brain/raylib-go/raylib"
 
 const (
 	PLAYER_WIDTH        = 50
-	PLAYER_HEIGHT       = 128
-	PLAYER_MAXXSPEED    = 5
+	PLAYER_HEIGHT       = 75
+	PLAYER_MAXXSPEED    = 6
 	PLAYER_GROUND_ACCEL = 1
 	PLAYER_GROUND_DECEL = 1
 	PLAYER_AIR_ACCEL    = 0.3
@@ -13,8 +13,8 @@ const (
 	PLAYER_JUMP_HEIGHT  = 12
 	PLAYER_RISING_GRV   = 0.4
 	PLAYER_FALLING_GRV  = 0.5
-	PLAYER_COYOTE_TIME  = 15
-	PLAYER_JUMP_BUFFER  = 18
+	PLAYER_COYOTE_TIME  = 9
+	PLAYER_JUMP_BUFFER  = 15
 )
 
 type Player struct {
@@ -66,6 +66,16 @@ func (p *Player) PlayerTick() {
 		p.Vel.X = MoveValue(p.Vel.X, 0, decel)
 	}
 
+	if !onground && p.coyoteTime == -1 {
+		p.coyoteTime = PLAYER_COYOTE_TIME
+	}
+	if onground {
+		p.coyoteTime = -1
+	}
+	if p.coyoteTime != -1 {
+		p.coyoteTime = max(0, p.coyoteTime-1)
+	}
+
 	// clean grv speed
 	var grv float32
 	grv = PLAYER_RISING_GRV
@@ -81,9 +91,10 @@ func (p *Player) PlayerTick() {
 		p.jumpBuffer = PLAYER_JUMP_BUFFER
 	}
 
-	// launch player up when jump buffer is valid and player is on ground
-	if p.jumpBuffer > 0 && onground {
+	// launch player up when jump buffer is valid and coyote time is valid or player is on the ground
+	if p.jumpBuffer > 0 && (p.coyoteTime > 0 || onground) {
 		p.Vel.Y = -PLAYER_JUMP_HEIGHT
+		p.coyoteTime = 0
 	}
 
 	// decrease jump buffer
@@ -105,11 +116,9 @@ func (p *Player) PlayerTick() {
 		p.Vel.Y = 0
 	}
 
-	// push player up in case they're trapped in a block forever
+	// push player out in case they're trapped in a block forever
 	if p.TileMeeting(p.Pos.X, p.Pos.Y) && p.Vel.X == 0 && p.Vel.Y == 0 {
-		for p.TileMeeting(p.Pos.X, p.Pos.Y) {
-			p.Pos.Y--
-		}
+		p.PushOut()
 	}
 
 	// apply x and y speeds
@@ -137,4 +146,39 @@ func (p *Player) TileMeeting(x float32, y float32) bool {
 	}
 	return false
 
+}
+
+func (p *Player) PushOut() {
+	origX := p.Pos.X
+	origY := p.Pos.Y
+
+	// rotate around every possible direction to push the player out of a wall until you find the shortest path
+	for i := 1; i < 500; i++ {
+		f_i := float32(i)
+		if !p.TileMeeting(origX, origY+f_i) {
+			p.Pos.X = origX
+			p.Pos.Y = origY + f_i
+			return
+		}
+		if !p.TileMeeting(origX, origY-f_i) {
+			p.Pos.X = origX
+			p.Pos.Y = origY - f_i
+			return
+		}
+		if !p.TileMeeting(origX+f_i, origY) {
+			p.Pos.X = origX + f_i
+			p.Pos.Y = origY
+			return
+		}
+		if !p.TileMeeting(origX-f_i, origY) {
+			p.Pos.X = origX - f_i
+			p.Pos.Y = origY
+			return
+		}
+	}
+
+	// failsafe; push player up
+	for !p.TileMeeting(p.Pos.X, p.Pos.Y) {
+		p.Pos.Y--
+	}
 }
