@@ -8,6 +8,7 @@ type Input struct {
 	up    bool
 	down  bool
 	jump  bool
+	jumpI bool
 
 	game *Game
 }
@@ -22,4 +23,5 @@ func (i *Input) InputTick() {
 	i.up = rl.IsKeyDown(rl.KeyW)
 	i.down = rl.IsKeyDown(rl.KeyS)
 	i.jump = rl.IsKeyDown(rl.KeySpace)
+	i.jumpI = rl.IsKeyPressed(rl.KeySpace)
 }

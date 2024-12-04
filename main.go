@@ -19,8 +19,9 @@ func main() {
 	for !rl.WindowShouldClose() {
 
 		// game logic
-		camera.MoveCamera(rl.NewVector2(game.Player.Pos.X+(PLAYER_WIDTH/2), game.Player.Pos.Y+(PLAYER_HEIGHT/2)))
 		game.Input.InputTick()
+		game.Player.PlayerTick()
+		camera.MoveCamera(rl.NewVector2(game.Player.Pos.X+(PLAYER_WIDTH/2), game.Player.Pos.Y+(PLAYER_HEIGHT/2)))
 
 		// drawing
 		rl.BeginDrawing()
@@ -30,7 +31,7 @@ func main() {
 		rl.BeginMode2D(game.Camera.Camera)
 
 		game.DrawTiles()
-		camera.DrawCameraMarker()
+		//camera.DrawCameraMarker()
 		player.DrawPlayer()
 
 		rl.DrawCircle(int32(game.Camera.screenLeft), int32(game.Camera.screenTop), 20, rl.Blue)

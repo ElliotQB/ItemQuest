@@ -61,7 +61,7 @@ func (g *Game) LoadLevel(filename string) {
 		if tile == 1 {
 			g.Tiles[x][y] = true
 		} else if tile == 2 {
-			g.Player.Pos = rl.NewVector2(float32(x*(CELL_SIZE)), float32(y*CELL_SIZE))
+			g.Player.Pos = rl.NewVector2(float32(x*(CELL_SIZE)), float32(y*CELL_SIZE)-5)
 			g.Camera.MoveCamera(g.Player.Pos)
 		}
 	}
@@ -100,4 +100,39 @@ func Floor32(val float32) float32 {
 // like floor but with float32 values instead of float64
 func Ceil32(val float32) float32 {
 	return float32(math.Ceil(float64(val)))
+}
+
+// converts a boolean to an integer value for boolean arithmetic
+func BoolToInt(val bool) int {
+	if val {
+		return 1
+	} else {
+		return 0
+	}
+}
+
+// move a value to a destination by a given step size
+func MoveValue(val float32, dest float32, step float32) float32 {
+	orig := dest-val > 0
+	if dest-val > 0 {
+		val += step
+	} else {
+		val -= step
+	}
+	if (dest-val > 0) != orig {
+		return dest
+	} else {
+		return val
+	}
+}
+
+// returns a normalized version of the value
+func Sign(val float32) float32 {
+	if val > 0 {
+		return 1
+	} else if val < 0 {
+		return -1
+	} else {
+		return 0
+	}
 }
