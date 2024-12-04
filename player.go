@@ -37,6 +37,8 @@ const (
 	ANIM_LAND        = 4
 	ANIM_LAND_PATH   = "textures/land-Sheet.png"
 	ANIM_LAND_FRAMES = 4
+
+	ANIM_AIR = 5
 )
 
 func LoadAnims() []rl.Texture2D {
@@ -55,6 +57,7 @@ type Player struct {
 	Vel    rl.Vector2
 	Width  float32
 	Height float32
+	Dir    bool
 
 	coyoteTime float32
 	jumpBuffer float32
@@ -74,6 +77,7 @@ func NewPlayer(g *Game) Player {
 		game:     g,
 		renderer: NewSpriteRenderer(anims[ANIM_IDLE], ANIM_IDLE_FRAMES, 4, 3, rl.NewVector2(0, -16)),
 		Anims:    anims,
+		Dir:      true,
 	}
 }
 
@@ -102,12 +106,15 @@ func (p *Player) PlayerStep() {
 	// accelerate and decelerate player
 	if move == 1 {
 		p.Vel.X = min(PLAYER_MAXXSPEED, p.Vel.X+accel)
+		p.Dir = true
 	} else if move == -1 {
 		p.Vel.X = max(-PLAYER_MAXXSPEED, p.Vel.X-accel)
+		p.Dir = false
 	} else {
 		p.Vel.X = MoveValue(p.Vel.X, 0, decel)
 	}
 
+	// coyote time
 	if !onground && p.coyoteTime == -1 {
 		p.coyoteTime = PLAYER_COYOTE_TIME
 	}
@@ -116,6 +123,16 @@ func (p *Player) PlayerStep() {
 	}
 	if p.coyoteTime != -1 {
 		p.coyoteTime = max(0, p.coyoteTime-1)
+	}
+
+	// set animation state to air when off ground
+	if !onground {
+		p.AnimationState = ANIM_AIR
+	} else {
+		if p.AnimationState != ANIM_IDLE {
+			p.AnimationState = ANIM_IDLE
+			p.ASTimer = 0
+		}
 	}
 
 	// clean grv speed
@@ -176,12 +193,21 @@ func (p *Player) PlayerAnimationStateStep() {
 
 	switch p.AnimationState {
 	case ANIM_IDLE:
+		p.renderer.flip = !p.Dir
 		if p.ASTimer == 0 {
 			p.renderer.sprite = p.Anims[ANIM_IDLE]
 			p.renderer.animationFrame = 0
-			p.renderer.animationSpeed = 4
+			p.renderer.animationSpeed = 0.05
 		}
 
+	case ANIM_AIR:
+		p.renderer.flip = !p.Dir
+		if p.Vel.Y < 0 {
+			p.renderer.sprite = p.Anims[ANIM_JUMP]
+		} else {
+			p.renderer.sprite = p.Anims[ANIM_FALL]
+		}
+		p.renderer.animationFrame = 0
 	}
 
 	p.ASTimer++
