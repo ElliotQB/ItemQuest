@@ -4,12 +4,16 @@ tiles = [];
 
 cur_tile = TILES.COLLISION
 
-#macro NUM_TILES 3
+#macro NUM_TILES 7
 enum TILES 
 {
-	COLLISION	= 1,
-	PLAYERSTART = 2,
-	COLLECTABLE = 3,
+	COLLISION		= 1,
+	PLAYERSTART		= 2,
+	COLLECTABLE		= 3,
+	HAZARD			= 4,
+	DOUBLEJUMPGEM	= 5,
+	TRIPLEJUMPGEM	= 6,
+	WALLJUMPGEM		= 7,
 }
 
 tile_type = 1;

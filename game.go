@@ -12,12 +12,18 @@ import (
 
 const CELL_SIZE = 64
 
+const (
+	WALL   = 1
+	HAZARD = 2
+)
+
 type Game struct {
-	loaded bool
-	Tiles  [200][200]bool
-	Camera Camera
-	Player Player
-	Input  Input
+	loaded       bool
+	Tiles        [200][200]int
+	Camera       Camera
+	Player       Player
+	Input        Input
+	Collectables []Collectable
 }
 
 func NewGame() Game {
@@ -41,7 +47,7 @@ func (g *Game) LoadLevel(filename string) {
 
 	defer f.Close()
 
-	buf := make([]byte, 1024)
+	buf := make([]byte, 8192)
 	n, err := f.Read(buf)
 	if err != nil {
 		fmt.Println(err)
@@ -51,15 +57,25 @@ func (g *Game) LoadLevel(filename string) {
 
 	split := strings.Split(level, ",")
 
-	g.Tiles = [200][200]bool{}
+	g.Tiles = [200][200]int{}
 
-	for i := 0; i < len(split)-1; i += 3 {
+	for i := 0; i < len(split); i += 3 {
 		x, _ := strconv.Atoi(split[i])
 		y, _ := strconv.Atoi(split[i+1])
 		tile, _ := strconv.Atoi(split[i+2])
 
 		if tile == 1 {
-			g.Tiles[x][y] = true
+			g.Tiles[x][y] = 1
+		} else if tile == 4 {
+			g.Tiles[x][y] = 2
+		} else if tile == 3 {
+			g.Collectables = append(g.Collectables, NewCollectable(float32(x*CELL_SIZE), float32(y*CELL_SIZE), CAT))
+		} else if tile == 5 {
+			g.Collectables = append(g.Collectables, NewCollectable(float32(x*CELL_SIZE), float32(y*CELL_SIZE), DOUBLEJUMPGEM))
+		} else if tile == 6 {
+			g.Collectables = append(g.Collectables, NewCollectable(float32(x*CELL_SIZE), float32(y*CELL_SIZE), TRIPLEJUMPGEM))
+		} else if tile == 7 {
+			g.Collectables = append(g.Collectables, NewCollectable(float32(x*CELL_SIZE), float32(y*CELL_SIZE), WALLJUMPGEM))
 		} else if tile == 2 {
 			g.Player.Pos = rl.NewVector2(float32(x*(CELL_SIZE)), float32(y*CELL_SIZE)-5)
 			g.Camera.MoveCamera(g.Player.Pos)
@@ -73,8 +89,11 @@ func (g *Game) DrawTiles() {
 	for i := max(0, StepDown(g.Camera.screenLeft, CELL_SIZE)); i <= min(200*CELL_SIZE, StepUp(g.Camera.screenRight, CELL_SIZE)); i += CELL_SIZE {
 		for j := max(0, StepDown(g.Camera.screenTop, CELL_SIZE)); j <= min(200*CELL_SIZE, StepUp(g.Camera.screenBottom, CELL_SIZE)); j += CELL_SIZE {
 			if i >= 0 && j >= 0 && i < 200*CELL_SIZE && j < 200*CELL_SIZE {
-				if g.Tiles[int(i/CELL_SIZE)][int(j/CELL_SIZE)] {
+				if g.Tiles[int(i/CELL_SIZE)][int(j/CELL_SIZE)] == 1 {
 					rl.DrawRectangle(int32(i), int32(j), CELL_SIZE, CELL_SIZE, rl.Gray)
+				}
+				if g.Tiles[int(i/CELL_SIZE)][int(j/CELL_SIZE)] == 2 {
+					rl.DrawRectangle(int32(i), int32(j), CELL_SIZE, CELL_SIZE, rl.Red)
 				}
 			}
 		}
@@ -103,12 +122,24 @@ func Ceil32(val float32) float32 {
 	return float32(math.Ceil(float64(val)))
 }
 
+func Abs32(val float32) float32 {
+	return float32(math.Abs(float64(val)))
+}
+
 // converts a boolean to an integer value for boolean arithmetic
 func BoolToInt(val bool) int {
 	if val {
 		return 1
 	} else {
 		return 0
+	}
+}
+
+func FloatToBool(val float32) bool {
+	if val > 0 {
+		return true
+	} else {
+		return false
 	}
 }
 
