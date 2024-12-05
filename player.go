@@ -187,7 +187,7 @@ func (p *Player) PlayerStep() {
 		}
 
 		// collision with hazard
-		if p.TileMeeting(p.Pos.X, p.Pos.Y, HAZARD) {
+		if p.TileMeeting(p.Pos.X, p.Pos.Y, HAZARD) || p.Pos.Y > 200*CELL_SIZE {
 			p.Pos = p.lastSavePos
 			p.State = PLAYER_STATE_RESPAWNING
 			p.StateCounter = 0

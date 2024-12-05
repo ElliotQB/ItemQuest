@@ -24,6 +24,7 @@ type Game struct {
 	Player       Player
 	Input        Input
 	Collectables []Collectable
+	Cats         int
 }
 
 func NewGame() Game {
@@ -47,7 +48,7 @@ func (g *Game) LoadLevel(filename string) {
 
 	defer f.Close()
 
-	buf := make([]byte, 8192)
+	buf := make([]byte, 1024*50)
 	n, err := f.Read(buf)
 	if err != nil {
 		fmt.Println(err)

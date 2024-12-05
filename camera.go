@@ -26,6 +26,9 @@ func NewCamera(game *Game) Camera {
 
 func (c *Camera) MoveCamera(pos rl.Vector2) {
 	c.tweenPos = pos
+
+	c.tweenPos.X = rl.Clamp(c.tweenPos.X, float32(rl.GetScreenWidth()/2), float32(200*CELL_SIZE)-float32(rl.GetScreenWidth()/2))
+	c.tweenPos.Y = rl.Clamp(c.tweenPos.Y, float32(rl.GetScreenHeight()/2), float32(200*CELL_SIZE)-float32(rl.GetScreenHeight()/2))
 }
 
 func (c *Camera) CameraStep() {
